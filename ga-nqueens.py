@@ -2,7 +2,7 @@
 
 import sys;
 import random;
-import time;
+
 class GridClass:
     
     def __init__(self, board_length: int):
@@ -43,6 +43,14 @@ class GridClass:
     def __str__(self) -> str:
         return str(self.Conflicts)
 
+class IA:
+    def __init__(self, Parent1: GridClass, Parent2: GridClass):
+        self.Parent1 = Parent1
+        self.Parent2 = Parent2
+    # Regarde comment l'autre classe est faite, les -> None sur les méthodes 
+    # forcent le type de return (None = void), et les ":" dans les paramètres forcent le typage 
+    # du paramètre genre Parent1 : GridClass, si il reçoit autre chose qu'une gridclass, ça va péter
+
             
 def test_arg(arg_length: int, args: []) -> None:
     if arg_length != 2:
@@ -66,8 +74,10 @@ def main(board_length: int) -> None:
         grid_list.append(Grid)
     
     grid_list.sort(key=lambda x: x.Conflicts)   
-    for item in range(1, 10):
-        print(grid_list[item].GridRandomQueens)
+    # Dégager tous les autres objets autres que les 10 premiers, en gros un slice
+    # Créer un objet "IA" et tu mets deux objets genre 0 et 1, 2 et 3, 4 et 5, 6 et 7, 8 et 9 dans l'objet avec un constructeur qui prend deux objets GRID
+    # et tu fais le cross-over + la mutation.
+    # Voir plus tard mais pas tout de suite, une fois qu'on a fait la premiere generation, comment boucler pour faire les autres et arriver à 0.
 
 
 
