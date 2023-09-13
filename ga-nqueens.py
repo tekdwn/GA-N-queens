@@ -47,6 +47,35 @@ class IA:
     def __init__(self, Parent1: GridClass, Parent2: GridClass):
         self.Parent1 = Parent1
         self.Parent2 = Parent2
+
+    def crossOver(Parent1 : GridClass, Parent2 : GridClass, perc) -> tuple:
+        size = len(Parent1.Grid)
+        firsthalf = size * 0.40
+        secondhalf = size * 0.60
+        child1 = []
+        child2 = []
+
+        for i in range(firsthalf):
+            child1.append(Parent1.Grid[i])
+        for i in range(secondhalf):
+            child1.append(Parent2.Grid[i])
+        for i in range(firsthalf):
+            child2.append(Parent2.Grid[i])
+        for i in range(secondhalf):
+            child2.append(Parent1.Grid[i])
+
+        return child1, child2
+    
+    def mutagen(Parent : GridClass) -> list:
+        offspring = Parent.Grid
+        size = len(Parent.Grid)
+        element = size * 0.50
+
+        offspring[element] = [1, 1 , True]
+
+        return [offspring]
+        
+
     # Regarde comment l'autre classe est faite, les -> None sur les méthodes 
     # forcent le type de return (None = void), et les ":" dans les paramètres forcent le typage 
     # du paramètre genre Parent1 : GridClass, si il reçoit autre chose qu'une gridclass, ça va péter
