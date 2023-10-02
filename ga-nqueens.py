@@ -1,119 +1,76 @@
-#Lucas Marteau & Max Cekanowski
+# ga-nqueens Max Cekanowski, Lucas Marteau
 
-import sys;
-import random;
+import random
 
-class GridClass:
-    
-    def __init__(self, board_length: int):
-        self.BoardLength = board_length
-        self.Grid = []
-        self.GridRandomQueens = []
-        self.Conflicts = 0;
-    
-    def FillUpGrid(self) -> None:
-        self.Grid = [[[row, col, False] for col in range(self.BoardLength)] for row in range(self.BoardLength)]
+#initialisation of the first population genom
+def init_board(size, n):
+    pop = []
+    for i in range(size):
+        geno = list(range(n))
+        random.shuffle(geno)
+        pop.append(geno)
+    return (pop)
 
-    def PlaceQueens(self) -> None:
-        i = 0
+def check_fit(board):
+    conflicts = 0
+    n = len(board)
 
-        while i < self.BoardLength:
-            x = random.randint(0, self.BoardLength - 1)
-            y = random.randint(0, self.BoardLength - 1)
-            if [x, y] in self.GridRandomQueens:
-                i = i - 1
-            else:
-                self.GridRandomQueens.append([x, y])
-            i = i + 1
-        for coordinates in self.GridRandomQueens:
-            self.Grid[coordinates[0]][coordinates[1]][2] = True;
-
-    def CheckConflicts(self) -> None:
-
-        for i in range(len(self.GridRandomQueens)):
-            for j in range(i + 1, len(self.GridRandomQueens)):
-
-                queen1 = self.GridRandomQueens[i]
-                queen2 = self.GridRandomQueens[j]
-
-                if (abs(queen1[0] - abs(queen2[0])) == abs(queen1[1] - abs(queen2[1]))):
-                    self.Conflicts += 1
-                if ((queen1[0] == queen2[0]) or (queen1[1] == queen2[1])):
-                    self.Conflicts += 1
-    def __str__(self) -> str:
-        return str(self.Conflicts)
-
-class IA:
-    def __init__(self, Parent1: GridClass, Parent2: GridClass):
-        self.Parent1 = Parent1
-        self.Parent2 = Parent2
-
-    def crossOver(Parent1 : GridClass, Parent2 : GridClass, perc) -> tuple:
-        size = len(Parent1.Grid)
-        firsthalf = size * 0.40
-        secondhalf = size * 0.60
-        child1 = []
-        child2 = []
-
-        for i in range(firsthalf):
-            child1.append(Parent1.Grid[i])
-        for i in range(secondhalf):
-            child1.append(Parent2.Grid[i])
-        for i in range(firsthalf):
-            child2.append(Parent2.Grid[i])
-        for i in range(secondhalf):
-            child2.append(Parent1.Grid[i])
-
-        return child1, child2
-    
-    def mutagen(Parent : GridClass) -> list:
-        offspring = Parent.Grid
-        size = len(Parent.Grid)
-        element = size * 0.50
-
-        offspring[element] = [1, 1 , True]
-
-        return [offspring]
-        
-
-    # Regarde comment l'autre classe est faite, les -> None sur les méthodes 
-    # forcent le type de return (None = void), et les ":" dans les paramètres forcent le typage 
-    # du paramètre genre Parent1 : GridClass, si il reçoit autre chose qu'une gridclass, ça va péter
-
+    for i in range(n):
+        for j in range(i + 1, n):
+            if board[i] == board [j] or abs(i - j) == abs(board[i] - board[j]):
+                conflicts += 1
             
-def test_arg(arg_length: int, args: []) -> None:
-    if arg_length != 2:
-        raise Exception("Incorrect number of arguments")
-    try:
-        int(args[1])
-    except:
-        raise Exception("Argument not well formated")
-    if int(args[1]) < 4:
-        raise Exception("Argument must be over 3")
-
-def main(board_length: int) -> None:
-    
-    grid_list = []
-
-    for _ in range(1000):
-        Grid = GridClass(board_length)
-        Grid.FillUpGrid();
-        Grid.PlaceQueens();
-        Grid.CheckConflicts();
-        grid_list.append(Grid)
-    
-    grid_list.sort(key=lambda x: x.Conflicts)   
-    # Dégager tous les autres objets autres que les 10 premiers, en gros un slice
-    # Créer un objet "IA" et tu mets deux objets genre 0 et 1, 2 et 3, 4 et 5, 6 et 7, 8 et 9 dans l'objet avec un constructeur qui prend deux objets GRID
-    # et tu fais le cross-over + la mutation.
-    # Voir plus tard mais pas tout de suite, une fois qu'on a fait la premiere generation, comment boucler pour faire les autres et arriver à 0.
+    return conflicts
 
 
+def turbo_mutation(genom, mutrate):
+    if random.random() < mutrate:
+        i, j = random.sample(range(len(genom)), 2)
+        genom[i], genom[j] = genom[j], genom[i]
 
-if __name__ == '__main__':
-    try:
-        test_arg(len(sys.argv), sys.argv);
-        main(int(sys.argv[1]));
-    except Exception as e:
-        print(str(e))
-        sys.exit(1);
+
+def parents_getter(pop, numberOfParents):
+    return sorted(pop, key=check_fit)[:numberOfParents]
+
+
+def crossover(p1, p2):
+    n = len(p1)
+    crossover_point = random.randint(1, n - 1)
+
+    child = [-1] * n 
+
+    child[:crossover_point] = p1[:crossover_point]
+
+    for gene in p2:
+        if gene not in child:
+            for i in range(n):
+                if child[i] == -1:
+                    child[i] = gene
+                    break
+
+    return child
+
+def genetic_algorithm(n, pop_size, num_gen, mutrate):
+    pop = init_board(pop_size, n)
+    for gen in range(num_gen):
+        parents = parents_getter(pop, pop_size // 2)
+        new_pop = []
+        while len(new_pop) < pop_size:
+            p1, p2 = random.sample(parents, 2)
+            child = crossover(p1, p2)
+            turbo_mutation(child, mutrate)
+            new_pop.append(child)
+        pop = new_pop
+        best_genome = min(pop, key=check_fit)
+        best_fitness = check_fit(best_genome)
+        print(f"Generation {gen+1}: Best Fitness = {best_fitness}")
+        if best_fitness == 0:
+            print("Solution found:", best_genome)
+            break
+
+if __name__ == "__main__":
+    n_queens = 8
+    population_size = 100
+    num_generations = 100000
+    mutation_rate = 0.1
+    genetic_algorithm(n_queens, population_size, num_generations, mutation_rate)
