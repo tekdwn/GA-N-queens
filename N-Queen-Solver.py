@@ -169,7 +169,7 @@ def genetical_algorithm(mutation_Rate = 0.02, max_generation = 10000):
         if best_solution_fitness == 0:
             GeneticProperties.GEN_FINISH = generation + 1
             return best_solution
-        if len(best_solution_queue) == 15 and all_equal(best_solution_queue):
+        if len(best_solution_queue) == GeneticProperties.CONSECUTIVE_GENERATIONS_TRESHOLD and all_equal(best_solution_queue):
             problematic_queen_index = find_problematic_queen(best_solution)
             if problematic_queen_index is not None:
                 best_solution[problematic_queen_index] = random.randint(0, GeneticProperties.BOARD_SIZE - 1)
