@@ -358,28 +358,9 @@ def setup_screen_properties():
         ctypes.windll.user32.SetProcessDPIAware()
         ScreenProperties.WIDTH_SCREEN = ctypes.windll.user32.GetSystemMetrics(0)
         ScreenProperties.HEIGHT_SCREEN = ctypes.windll.user32.GetSystemMetrics(1)
-    elif platform.system() == "Linux":
-        try:
-            import Xlib.display
-            display = Xlib.display.Display()
-            screen = display.screen()
-            ScreenProperties.WIDTH_SCREEN = screen.width_in_pixels
-            ScreenProperties.HEIGHT_SCREEN = screen.height_in_pixels
-        except ImportError:
-            print("Bibliothèque Xlib non trouvée. Assurez-vous qu'elle est installée.")
-            quit(1)
-    elif platform.system == "Darwin":  # Pour macOS
-        try:
-            from Quartz.CoreGraphics import CGDisplayBounds
-            mainScreen = CGDisplayBounds(0)
-            ScreenProperties.WIDTH_SCREEN = mainScreen.size.width
-            ScreenProperties.HEIGHT_SCREEN = mainScreen.size.height
-        except ImportError:
-            print("Bibliothèque Quartz non trouvée. Assurez-vous qu'elle est installée.")
-            quit(1)
     else:
-        print("Système d'exploitation non pris en charge.")
-        quit(1)
+        ScreenProperties.WIDTH_SCREEN = 1500
+        ScreenProperties.HEIGHT_SCREEN = 1200
 
 
 def compute(window, pygame):
